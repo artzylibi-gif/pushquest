@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PushQuest</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="PushQuest">
+<style>
+:root{--bg:#f4f1ec;--panel:#fff;--panel2:#ebe6dd;--tx:#1d1b18;--mut:#6f685d;--acc:#e8570f;--acc2:#0a8fb8;--hp:#d3293b;--ok:#1f9d55;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12141c;--panel:#1c2030;--panel2:#262b3f;--tx:#f2efe9;--mut:#9aa0b8;--acc:#ff8a3d;--acc2:#5ad7ff;--hp:#ff4d5e;--ok:#4cd68a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#12141c;--panel:#1c2030;--panel2:#262b3f;--tx:#f2efe9;--mut:#9aa0b8;--acc:#ff8a3d;--acc2:#5ad7ff;--hp:#ff4d5e;--ok:#4cd68a;color-scheme:dark}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;height:100%;background:var(--bg);color:var(--tx);font-family:ui-rounded,"SF Pro Rounded",system-ui,-apple-system,"Segoe UI",sans-serif;display:flex;flex-direction:column;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+#app{flex:1;display:flex;flex-direction:column;min-height:0;max-width:900px;width:100%;margin:0 auto}
+header{display:flex;gap:10px;padding:10px 14px;align-items:center;justify-content:space-between}
+.chip{background:var(--panel);border-radius:14px;padding:8px 12px;font-weight:700;font-size:15px;white-space:nowrap}
+.chip small{color:var(--mut);font-weight:600;margin-right:4px}
+main{flex:1;overflow-y:auto;padding:0 14px 14px;min-height:0}
+nav{display:flex;background:var(--panel);border-radius:18px 18px 0 0}
+nav button{flex:1;padding:14px 4px;border:0;background:none;color:var(--mut);font:700 14px inherit;font-family:inherit}
+nav button.on{color:var(--acc);box-shadow:inset 0 3px 0 var(--acc)}
+.card{background:var(--panel);border-radius:18px;padding:16px;margin-bottom:12px}
+.boss{text-align:center}
+.bossart{font-size:clamp(90px,22vw,150px);line-height:1.1;display:inline-block;transition:transform .08s}
+.bossart.hit{transform:scale(.88) rotate(-6deg)}
+.bn{font-size:22px;font-weight:800}
+.bar{height:22px;border-radius:12px;background:var(--panel2);overflow:hidden;margin:10px 0 4px}
+.bar>i{display:block;height:100%;background:var(--hp);width:100%;transition:width .15s}
+.bar.bat>i{background:var(--acc2)}
+.row{display:flex;gap:10px;align-items:center;justify-content:space-between}
+.btn{border:0;border-radius:18px;padding:18px;font:800 20px inherit;font-family:inherit;background:var(--acc);color:#fff;width:100%;margin-top:10px}
+.btn.alt{background:var(--panel2);color:var(--tx);font-size:16px;padding:14px}
+.btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.4}
+.up{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--panel2)}
+.up:last-child{border:0}
+.up b{display:block;font-size:16px}.up span{color:var(--mut);font-size:13px}
+.up button{border:0;border-radius:12px;padding:10px 14px;font:800 14px inherit;font-family:inherit;background:var(--acc2);color:#fff;min-width:92px}
+.up button:disabled{opacity:.35}
+.pop{position:fixed;pointer-events:none;font-weight:900;font-size:28px;color:var(--acc);animation:fl .8s ease-out forwards}
+@keyframes fl{to{transform:translateY(-70px);opacity:0}}
+.cam{display:none}.cam.on{display:block}
+video{width:100%;height:200px;object-fit:fill;border-radius:14px;background:#000;transform:scaleX(-1);display:block}
+.cwrap{position:relative;height:200px}
+#ov{position:absolute;left:0;top:0;width:100%;height:200px;pointer-events:none;border-radius:14px}
+.stat{display:flex;justify-content:space-between;padding:8px 0;font-weight:600}
+.stat span:first-child{color:var(--mut)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:20px;z-index:9}
+.modal.on{display:flex}
+.modal .card{max-width:420px;width:100%;text-align:center;margin:0}
+input[type=range]{width:100%}
+.bl{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--panel2)}
+.bl .e{font-size:34px}.bl.lock{opacity:.4}
+@media (prefers-reduced-motion:reduce){.pop,.bossart{animation:none;transition:none}}
+html,body{height:auto;min-height:100%}
+body{display:block}
+:root{padding-bottom:0}
+#app{display:block;min-height:100vh;padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+main{overflow:visible;flex:none;min-height:0}
+nav{position:fixed;left:0;right:0;bottom:0;margin:0 auto;width:100%;max-width:900px;padding-bottom:env(safe-area-inset-bottom,0px);z-index:5}
+#err{position:fixed;top:0;left:0;right:0;background:#c0182b;color:#fff;font:12px monospace;padding:6px;z-index:99;display:none}
+html,body{overflow-x:hidden}
+.cwrap{height:auto;aspect-ratio:var(--ar,4/3);max-width:760px;margin:0 auto;width:100%}
+video{height:100%;max-height:none;object-fit:cover;display:block}
+#ov{height:100%;width:100%}
+</style>
+</head>
+<body>
+<div id="err"></div>
+<div id="app">
+<header><div class="chip"><small>Reps</small><span id="hReps">0</span></div><div class="chip"><small>Crystals</small><span id="hCry">0</span></div></header>
+<main id="main"></main>
+<nav id="nav"></nav>
+</div>
+<div class="modal" id="modal"><div class="card"><div id="mBody"></div><button class="btn" id="mOk">Continue</button></div></div>
+<script>
+"use strict";
+window.onerror=function(m,u,l){var e=document.getElementById("err");if(e){e.style.display="block";e.textContent="Error: "+m+" (line "+l+")"}};
+var BOSSES=[["Gloopy","🟢"],["Shellback","🐢"],["Batwing","🦇"],["Mossgrub","🐛"],["Sandclaw","🦂"],["Frostfang","🐺"],["Embertail","🦎"],["Stonehorn","🦏"],["Tidal Maw","🦈"],["Skyrender","🦅"],["Voidmoth","🦋"],["Crown Wyrm","🐉"]];
+var SWORDS=["Wooden Stick","Iron Blade","Hero's Edge","Steel Fang","Moon Saber","Storm Cutter","Crystal Brand","Ember Reaper","Void Slicer","Star Splitter","Dawn Breaker","Worldender"];
+var HELP=[["Squire",1,25],["Archer",8,300],["Mage",60,4000],["Golem",500,60000],["Dragon",4000,1e6]];
+var SAVE="pushquest.v1";
+var S=null;
+function fresh(m){return{reps:0,cry:0,boss:0,hp:30,sw:0,hl:[0,0,0,0,0],mine:0,bat:0,batLv:0,cas:0,ngp:m||0,last:Date.now(),days:{},total:0,sound:true,done:false,cal:5,diff:1,view:0}}
+function load(){try{var r=localStorage.getItem(SAVE);if(r){S=Object.assign(fresh(),JSON.parse(r));return}}catch(e){}S=fresh()}
+function save(){S.last=Date.now();try{localStorage.setItem(SAVE,JSON.stringify(S))}catch(e){}}
+function bossHp(n){return 30*Math.pow(10,n)}
+function fmt(n){if(!isFinite(n))return"∞";if(n<1000)return n<10?(Math.round(n*10)/10)+"":Math.floor(n)+"";var u=["K","M","B","T","Qa","Qi"],i=-1;while(n>=1000&&i<u.length-1){n/=1000;i++}return(n<10?n.toFixed(2):n<100?n.toFixed(1):Math.floor(n))+u[i]}
+function mult(){return(1+0.25*S.cas)*(1+S.ngp)}
+function dpr(){return(1+S.sw)*Math.pow(2,Math.floor(S.sw/10))*mult()}
+function hdps(){var t=0;for(var i=0;i<5;i++){var l=S.hl[i];t+=HELP[i][1]*l*Math.pow(2,Math.floor(l/25))}return t*mult()}
+function mps(){return 0.6*S.mine*Math.pow(2,Math.floor(S.mine/10))*mult()}
+function batCap(){return 60*(1+0.5*S.batLv)}
+function perRep(){return 5+S.batLv}
+function cost(kind,i){var l;if(kind=="sw")return 10*Math.pow(1.22,S.sw);if(kind=="hl")return HELP[i][2]*Math.pow(1.15,S.hl[i]);if(kind=="mine")return 20*Math.pow(1.18,S.mine);if(kind=="bat")return 30*Math.pow(1.3,S.batLv);return 100*Math.pow(1.6,S.cas)}
+function reward(n){return 40*Math.pow(3.2,n)}
+function dealDamage(d){
+  var guard=0;
+  while(d>0&&!S.done&&guard++<50){
+    if(d>=S.hp){d-=S.hp;S.cry+=reward(S.boss);
+      if(S.boss>=11){S.done=true;S.hp=0;showVictory();break}
+      S.boss++;S.hp=bossHp(S.boss);S.flash="Defeated "+BOSSES[S.boss-1][0]+"!"
+    }else{S.hp-=d;d=0}
+  }
+}
+function addRep(){
+  if(S.done)return;
+  var d=dpr();S.reps++;S.total++;S.cry+=Math.max(1,d*0.2);
+  S.bat=Math.min(batCap(),S.bat+perRep());
+  var k=new Date().toISOString().slice(0,10);S.days[k]=(S.days[k]||0)+1;
+  dealDamage(d);beep();pop("-"+fmt(d));
+  var a=document.getElementById("art");if(a){a.classList.add("hit");setTimeout(function(){a.classList.remove("hit")},90)}
+  render(true)
+}
+var ac=null;
+function beep(){if(!S.sound)return;try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();var o=ac.createOscillator(),g=ac.createGain();o.frequency.value=520;g.gain.value=.06;o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+.06)}catch(e){}try{navigator.vibrate&&navigator.vibrate(15)}catch(e){}}
+function pop(t){var e=document.createElement("div");e.className="pop";e.textContent=t;e.style.left=(30+Math.random()*40)+"vw";e.style.top="38vh";document.body.appendChild(e);setTimeout(function(){e.remove()},800)}
+function tick(dt){
+  if(S.bat>0&&!S.done){var u=Math.min(dt,S.bat);S.bat-=u;S.cry+=mps()*u;dealDamage(hdps()*u)}
+}
+function modal(html,cb){document.getElementById("mBody").innerHTML=html;var m=document.getElementById("modal");m.classList.add("on");document.getElementById("mOk").onclick=function(){m.classList.remove("on");cb&&cb()}}
+function showVictory(){modal("<h2>🏆 All 12 bosses defeated!</h2><p>Total push-ups: "+fmt(S.total)+"</p><p>Start New Game+ for a permanent x"+(S.ngp+2)+" damage bonus.</p>",function(){var n=S.ngp+1,t=S.total,d=S.days,s=S.sound;S=fresh(n);S.total=t;S.days=d;S.sound=s;save();render()})}
+function offline(){
+  var away=(Date.now()-S.last)/1000;if(away<20||S.bat<=0)return;
+  var c0=S.cry,b0=S.boss,use=Math.min(away,S.bat);
+  tick(use);
+  modal("<h2>While you were away</h2><p>"+Math.round(away/60)+" min away, helpers worked for "+Math.round(use)+" s of battery.</p><p>+"+fmt(S.cry-c0)+" crystals"+(S.boss>b0?"<br>Bosses defeated: "+(S.boss-b0):"")+"</p>")
+}
+var tab="battle",cam=null;
+var TABS=[["battle","Battle"],["up","Upgrades"],["bosses","Bosses"],["stats","Stats"]];
+function render(light){
+  document.getElementById("hReps").textContent=fmt(S.reps);document.getElementById("hCry").textContent=fmt(S.cry);
+  if(light&&tab=="battle"&&document.getElementById("hpb")){updBattle();return}
+  var n=document.getElementById("nav");n.innerHTML="";
+  TABS.forEach(function(t){var b=document.createElement("button");b.textContent=t[1];if(t[0]==tab)b.className="on";b.onclick=function(){tab=t[0];render()};n.appendChild(b)});
+  var m=document.getElementById("main");
+  if(tab=="battle")m.innerHTML=battleHTML();else if(tab=="up")m.innerHTML=upHTML();else if(tab=="bosses")m.innerHTML=bossesHTML();else m.innerHTML=statsHTML();
+  if(tab=="battle")bindBattle();
+}
+function battleHTML(){
+  var b=BOSSES[Math.min(S.boss,11)];
+  return '<div class="card boss"><div class="bossart" id="art">'+b[1]+'</div><div class="bn">'+b[0]+' <small style="color:var(--mut);font-size:14px">'+(S.boss+1)+' of 12</small></div><div class="bar"><i id="hpb"></i></div><div class="row"><span id="hpt"></span><span id="rw" style="color:var(--acc2);font-weight:700"></span></div></div>'+
+  '<div class="card"><div class="row"><b>Battery</b><span id="bt"></span></div><div class="bar bat"><i id="bb"></i></div><div class="row" style="color:var(--mut);font-size:13px"><span id="dp"></span><span id="ds"></span></div></div>'+
+  '<button class="btn" id="rep">Push-up  +1</button>'+
+  '<div class="card cam" id="camCard"><div class="cwrap"><video id="vid" playsinline muted></video><canvas id="ov" width="320" height="240"></canvas></div><div class="bar bat"><i id="sig"></i></div><div class="row"><span id="cst">Starting camera…</span><span id="cc"></span></div><div style="color:var(--mut);font-size:12px;margin-top:4px">Red = you · green = UP · blue = DOWN · yellow = how low to go</div><div style="color:var(--mut);font-size:13px;margin-top:8px">Where is the iPad?</div><div class="row" id="vw" style="gap:6px;margin-top:6px"><button class="btn alt" style="margin:0;padding:10px" data-v="0">Side-on (floor, facing me)</button><button class="btn alt" style="margin:0;padding:10px" data-v="1">Close / under my face</button></div><button class="btn alt" id="calBtn" style="margin-top:8px;padding:10px">Recalibrate</button><div style="color:var(--mut);font-size:13px;margin-top:6px">Difficulty: how far you must go down</div><div class="row" id="dif" style="gap:6px;margin-top:6px"><button class="btn alt" style="margin:0;padding:10px" data-d="0">Easy</button><button class="btn alt" style="margin:0;padding:10px" data-d="1">Medium</button><button class="btn alt" style="margin:0;padding:10px" data-d="2">Hard</button></div></div>'+
+  '<button class="btn alt" id="camBtn">Use camera to count reps</button>'+
+  '<p style="color:var(--mut);font-size:13px;text-align:center">Tap the big button for each push-up you do, or turn on the camera. Warm up first and stop if anything hurts.</p>'
+}
+function updBattle(){
+  var q=function(i){return document.getElementById(i)};
+  q("hpb").style.width=(S.done?0:Math.max(0,S.hp/bossHp(S.boss)*100))+"%";
+  q("hpt").textContent=fmt(Math.max(0,S.hp))+" / "+fmt(bossHp(S.boss))+" HP";
+  q("rw").textContent="Reward "+fmt(reward(S.boss));
+  q("bt").textContent=Math.ceil(S.bat)+"s / "+Math.round(batCap())+"s";
+  q("bb").style.width=(S.bat/batCap()*100)+"%";
+  q("dp").textContent="Per push-up: "+fmt(dpr());
+  q("ds").textContent="Helpers: "+fmt(hdps())+"/s · Mine: "+fmt(mps())+"/s";
+  q("rep").disabled=S.done;
+  if(S.bat<=0)q("bt").textContent="Empty - do push-ups to recharge";
+}
+function bindBattle(){
+  updBattle();
+  document.getElementById("rep").onclick=addRep;
+  document.getElementById("camBtn").onclick=toggleCam;
+  function paintDif(){[].forEach.call(document.querySelectorAll("#dif button"),function(b){var on=+b.dataset.d==S.diff;b.style.background=on?"var(--acc)":"";b.style.color=on?"#fff":"";b.onclick=function(){S.diff=+b.dataset.d;save();paintDif()}})}paintDif();var cb=document.getElementById("calBtn");if(cb)cb.onclick=calStart;function paintView(){[].forEach.call(document.querySelectorAll("#vw button"),function(b){var on=+b.dataset.v==S.view;b.style.background=on?"var(--acc)":"";b.style.color=on?"#fff":"";b.onclick=function(){S.view=+b.dataset.v;save();paintView();calStart()}})}paintView();
+  var a=document.getElementById("art");if(a){var b=BOSSES[Math.min(S.boss,11)][1];a.textContent=b}
+  if(cam)attachCam()
+}
+function upRow(t,d,c,lv,fn){var ok=S.cry>=c;return '<div class="up"><div><b>'+t+' <small style="color:var(--mut)">Lv '+lv+'</small></b><span>'+d+'</span></div><button '+(ok?"":"disabled")+' onclick="buy(\''+fn+'\')">'+fmt(c)+" 💎</button></div>"}
+function upHTML(){
+  var h='<div class="card"><b>'+SWORDS[Math.min(S.sw,11)]+"</b>"+upRow("Sword","Damage per push-up: "+fmt(dpr()),cost("sw"),S.sw,"sw")+upRow("Castle","All damage and income +25% per level",cost("cas"),S.cas,"cas")+upRow("Battery","More capacity and more charge per push-up",cost("bat"),S.batLv,"bat")+upRow("Mine","Crystals per second: "+fmt(mps()),cost("mine"),S.mine,"mine")+"</div>";
+  h+='<div class="card"><b>Helpers</b> <span style="color:var(--mut);font-size:13px">(work only while the battery has charge)</span>';
+  for(var i=0;i<5;i++)h+=upRow(HELP[i][0],"+"+fmt(HELP[i][1]*mult())+" damage/s each",cost("hl",i),S.hl[i],"hl"+i);
+  return h+"</div>"
+}
+function buy(k){
+  var c;if(k.indexOf("hl")==0){var i=+k[2];c=cost("hl",i);if(S.cry<c)return;S.cry-=c;S.hl[i]++}
+  else{c=cost(k);if(S.cry<c)return;S.cry-=c;if(k=="sw")S.sw++;else if(k=="cas")S.cas++;else if(k=="bat")S.batLv++;else S.mine++}
+  save();render()
+}
+function bossesHTML(){
+  var h='<div class="card">';
+  BOSSES.forEach(function(b,i){var st=i<S.boss||(S.done&&i==11)?"Defeated":i==S.boss?"Fighting now":"Locked";h+='<div class="bl '+(st=="Locked"?"lock":"")+'"><span class="e">'+(st=="Locked"?"❔":b[1])+'</span><div><b>'+b[0]+'</b><br><span style="color:var(--mut);font-size:13px">'+fmt(bossHp(i))+" HP · "+st+"</span></div></div>"});
+  return h+"</div>"
+}
+function statsHTML(){
+  var days=Object.keys(S.days).sort(),today=new Date().toISOString().slice(0,10),streak=0,d=new Date();
+  while(S.days[d.toISOString().slice(0,10)]){streak++;d.setDate(d.getDate()-1)}
+  var h='<div class="card"><div class="stat"><span>Lifetime push-ups</span><b>'+fmt(S.total)+'</b></div><div class="stat"><span>Today</span><b>'+(S.days[today]||0)+'</b></div><div class="stat"><span>Day streak</span><b>'+streak+'</b></div><div class="stat"><span>New Game+ level</span><b>'+S.ngp+'</b></div></div>';
+  h+='<div class="card"><b>Last 14 days</b><div style="display:flex;gap:4px;align-items:flex-end;height:100px;margin-top:10px">';
+  var vals=[],mx=1,dd=new Date();dd.setDate(dd.getDate()-13);
+  for(var i=0;i<14;i++){var v=S.days[dd.toISOString().slice(0,10)]||0;vals.push(v);mx=Math.max(mx,v);dd.setDate(dd.getDate()+1)}
+  vals.forEach(function(v){h+='<div style="flex:1;background:var(--acc);border-radius:4px;height:'+Math.max(3,v/mx*100)+'%;opacity:'+(v?1:.25)+'"></div>'});
+  h+='</div></div><div class="card"><div class="stat"><span>Sound</span><button class="btn alt" style="width:auto;margin:0;padding:8px 16px" onclick="S.sound=!S.sound;save();render()">'+(S.sound?"On":"Off")+'</button></div><button class="btn alt" onclick="if(confirm(\'Erase all progress?\')){S=fresh();save();render()}">Reset progress</button></div>';
+  return h
+}
+/* Camera rep counter v3: silhouette vs. background with exposure compensation. Two views: side (height) or close (size). */
+var CW=64,CH=48,K=5;
+var cs={t:null,cv:null,ctx:null,bg:null,bgAcc:null,bgN:0,mode:"bg",t0:0,up:null,down:null,h:null,topx:0,state:"up",lastRep:0,flash:0,buf:[],warn:0,big:0};
+function toggleCam(){if(cam){stopCam()}else startCam()}
+function setMsg(t){var e=document.getElementById("cst");if(e)e.textContent=t}
+function calStart(){cs.mode="bg";cs.t0=Date.now();cs.bgAcc=null;cs.bgN=0;cs.up=null;cs.down=null;cs.buf=[];cs.state="up";cs.h=null;cs.big=0}
+function arSet(){var v=document.getElementById("vid"),w=document.querySelector(".cwrap");if(v&&w&&v.videoWidth)w.style.setProperty("--ar",v.videoWidth+"/"+v.videoHeight)}
+function startCam(){
+  var cc=document.getElementById("camCard");cc.classList.add("on");
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){setMsg("Camera not available here. Use the button.");return}
+  var tryCam=function(c){return navigator.mediaDevices.getUserMedia(c)};
+  tryCam({video:{facingMode:{exact:"user"}},audio:false}).catch(function(e){if(e&&e.name=="NotAllowedError")throw e;return tryCam({video:{facingMode:"user"},audio:false})}).catch(function(e){if(e&&e.name=="NotAllowedError")throw e;return tryCam({video:true,audio:false})}).then(function(st){
+    cam=st;attachCam();
+    cs.cv=document.createElement("canvas");cs.cv.width=CW;cs.cv.height=CH;cs.ctx=cs.cv.getContext("2d",{willReadFrequently:true});
+    calStart();clearInterval(cs.t);cs.t=setInterval(camFrame,70)
+  }).catch(function(e){setMsg("Camera error: "+(e&&e.name||"unknown")+". "+(e&&e.name=="NotAllowedError"?"Camera was refused. Check Settings > Safari > Camera.":"Use the +1 button instead."))})
+}
+function attachCam(){var v=document.getElementById("vid");if(v&&cam&&v.srcObject!==cam){v.onloadedmetadata=arSet;v.srcObject=cam;v.play().catch(function(){})}else arSet();var cc=document.getElementById("camCard");if(cc)cc.classList.add("on");var b=document.getElementById("camBtn");if(b)b.textContent="Turn camera off"}
+function stopCam(){clearInterval(cs.t);if(cam)cam.getTracks().forEach(function(t){t.stop()});cam=null;var cc=document.getElementById("camCard");if(cc)cc.classList.remove("on");var b=document.getElementById("camBtn");if(b)b.textContent="Use camera to count reps"}
+function median(a){var b=a.slice().sort(function(x,y){return x-y});return b[b.length>>1]}
+function need(){return[0.3,0.6,0.9][S.diff]}
+function drawOv(fg){
+  var c=document.getElementById("ov");if(!c)return;var x=c.getContext("2d");x.clearRect(0,0,320,240);
+  if(fg){x.fillStyle="rgba(255,40,60,.4)";for(var i=0;i<fg.length;i++){if(fg[i]){x.fillRect((CW-1-i%CW)*K,((i/CW)|0)*K,K,K)}}}
+  if(S.view==0){
+    var line=function(row,col,txt,dash){x.strokeStyle=col;x.fillStyle=col;x.lineWidth=2;x.setLineDash(dash?[8,6]:[]);x.beginPath();x.moveTo(0,row*K);x.lineTo(320,row*K);x.stroke();x.setLineDash([]);x.font="bold 12px sans-serif";x.fillText(txt,4,Math.max(12,row*K-3))};
+    if(cs.up!==null)line(cs.up,"#2fe07a","UP",1);
+    if(cs.down!==null)line(cs.down,"#5ad7ff","DOWN",1);
+    if(cs.mode=="run")line(cs.up+need()*(cs.down-cs.up),"#ffd02a","GO THIS LOW",0);
+    if(cs.h!==null){line(cs.h,"#ff2a3c","YOU",0);x.beginPath();x.arc((CW-1-cs.topx)*K,cs.h*K,8,0,6.3);x.fill()}
+  }
+  if(Date.now()-cs.flash<350){x.strokeStyle="#2fe07a";x.lineWidth=10;x.strokeRect(0,0,320,240)}
+}
+function camFrame(){
+  var v=document.getElementById("vid");if(!v||!cam||v.readyState<2)return;
+  cs.ctx.drawImage(v,0,0,CW,CH);var d=cs.ctx.getImageData(0,0,CW,CH).data,n=CW*CH,g=new Float32Array(n),i;
+  for(i=0;i<n;i++)g[i]=d[i*4]*.3+d[i*4+1]*.59+d[i*4+2]*.11;
+  var now=Date.now(),el=(now-cs.t0)/1000;
+  var cc=document.getElementById("cc");if(cc)cc.textContent="Reps: "+S.reps;
+  if(cs.mode=="bg"){
+    setMsg("Step 1 of 3: step OUT of the picture and stay out... "+Math.max(0,Math.ceil(4-el))+"s");
+    if(el>=3){if(!cs.bgAcc){cs.bgAcc=new Float32Array(n);cs.bgN=0}for(i=0;i<n;i++)cs.bgAcc[i]+=g[i];cs.bgN++}
+    if(el>=4&&cs.bgN>3){cs.bg=new Float32Array(n);for(i=0;i<n;i++)cs.bg[i]=cs.bgAcc[i]/cs.bgN;cs.mode="up";cs.t0=now;cs.buf=[]}
+    drawOv(null);return
+  }
+  /* compare to background, ignoring the whole-picture brightness shift the camera makes when you walk in */
+  var df=new Float32Array(n),smp=[];
+  for(i=0;i<n;i++){df[i]=g[i]-cs.bg[i];if(i%5==0)smp.push(df[i])}
+  var off=median(smp),fg=new Uint8Array(n),tot=0;
+  for(i=0;i<n;i++){if(Math.abs(df[i]-off)>32){fg[i]=1;tot++}else cs.bg[i]+=df[i]*.02}
+  if(tot>n*.7){cs.big++;fg.fill(0);tot=0;if(cs.big>45){calStart();return}}else cs.big=0;
+  var val=null;
+  if(S.view==0){
+    var rows=new Uint16Array(CH),top=-1;
+    for(i=0;i<n-1;i++){if(fg[i]&&fg[i+1]&&(i%CW)<CW-1)rows[(i/CW)|0]++}
+    if(tot>40){for(var r=0;r<CH-1;r++){if(rows[r]>=4&&rows[r+1]>=4){top=r;break}}}
+    if(top>=0){var sx=0,sc=0;for(var q=0;q<CW;q++){if(fg[top*CW+q]){sx+=q;sc++}}cs.topx=sc?sx/sc:CW/2;val=top}
+  }else if(tot>12)val=tot/n*100;
+  if(val!==null){cs.h=cs.h===null?val:cs.h*.5+val*.5}else cs.h=null;
+  var minR=S.view?4:3;
+  if(cs.mode=="up"||cs.mode=="down"){
+    var lab=S.view==0?(cs.mode=="up"?"Step 2 of 3: get in push-up position (arms straight) and hold":"Step 3 of 3: lower ALL the way down and hold"):(cs.mode=="up"?"Step 2 of 3: get in your start position (arms straight) and hold":"Step 3 of 3: lower ALL the way down, closest to the camera, and hold");
+    if(now-cs.warn<2500)lab="Range too small, try again. ";
+    if(cs.h===null){setMsg("I can't see you. Step into the picture.");cs.t0=now;cs.buf=[]}
+    else{cs.buf.push(cs.h);setMsg(lab+" "+Math.max(0,Math.ceil(3-el))+"s");
+      if(el>=3){var vv=median(cs.buf.slice(-12));cs.buf=[];
+        if(cs.mode=="up"){cs.up=vv;cs.mode="down";cs.t0=now}
+        else{cs.down=vv;if(Math.abs(cs.down-cs.up)<minR){cs.warn=now;cs.mode="up";cs.t0=now}else{cs.mode="run";cs.state="up";setMsg("Ready! Do push-ups.")}}}}
+  }else if(cs.mode=="run"){
+    var sg=document.getElementById("sig");
+    if(cs.h!==null){
+      var p=(cs.h-cs.up)/(cs.down-cs.up);
+      if(sg)sg.style.width=Math.max(0,Math.min(100,p/need()*100))+"%";
+      if(cs.state=="up"&&p>=need())cs.state="down";
+      else if(cs.state=="down"&&p<=0.25){cs.state="up";if(now-cs.lastRep>500){cs.lastRep=now;cs.flash=now;addRep();attachCam();setMsg("Rep counted!")}}
+      if(now-cs.lastRep>1200)setMsg(cs.state=="down"?"Now push back up!":(S.view==0?"Go down to the yellow line":"Go down, closer to the camera"));
+    }else setMsg("I can't see you. Move into the picture.");
+  }
+  drawOv(fg)
+}
+document.getElementById("mOk").onclick=function(){document.getElementById("modal").classList.remove("on")};
+load();offline();render();
+var lt=Date.now();
+setInterval(function(){var n=Date.now(),dt=Math.min(2,(n-lt)/1000);lt=n;tick(dt);if(S.flash){pop(S.flash);S.flash=null;render()}else render(true)},250);
+setInterval(save,5000);
+document.addEventListener("visibilitychange",function(){if(document.hidden){save()}else{offline();lt=Date.now();render()}});
+window.addEventListener("pagehide",save);
+</script>
+</body>
+</html>
